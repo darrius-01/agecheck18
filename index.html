@@ -1,59 +1,106 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Вам есть 18 лет?</title>
-<style>
-body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #111;
-    font-family: Arial, sans-serif;
-}
-
-.box {
-    text-align: center;
-    background: #222;
-    padding: 40px;
-    border-radius: 10px;
-}
-
-h1 {
-    color: white;
-    margin-bottom: 30px;
-}
-
-button {
-    padding: 12px 40px;
-    margin: 10px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-}
-
-.yes {
-    background: #2ecc71;
-    color: white;
-}
-
-.no {
-    background: #e74c3c;
-    color: white;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Подтверждение возраста</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root { --bg:#0f1115; --card:#161a22; --text:#f3f4f6; --muted:#9aa4b2; --yes:#22c55e; --no:#ef4444; }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background: radial-gradient(1200px 800px at 50% 20%, #1b2230 0%, var(--bg) 60%);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      padding:24px;
+    }
+    .card{
+      width:min(520px, 100%);
+      background:rgba(22,26,34,.9);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:28px 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      text-align:center;
+      backdrop-filter: blur(8px);
+    }
+    h1{
+      margin:0 0 10px;
+      font-size: clamp(22px, 4vw, 34px);
+      letter-spacing:-0.02em;
+    }
+    p{ margin:0 0 18px; color:var(--muted); font-size:14px; line-height:1.45; }
+    .btns{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .btn{
+      border:0; cursor:pointer;
+      min-width:160px;
+      padding:14px 18px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:16px;
+      letter-spacing:.02em;
+      transition: transform .08s ease, filter .15s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .yes{ background: var(--yes); color:#05210f; }
+    .no{ background: var(--no); color:#2a0606; }
+    .btn:hover{ filter: brightness(1.05); }
+    .foot{ margin-top:14px; font-size:12px; color:rgba(255,255,255,.45); }
+  </style>
 </head>
 <body>
-
-<div class="box">
+  <main class="card" role="dialog" aria-label="Подтверждение возраста">
     <h1>Вам есть 18 лет?</h1>
-    <button class="yes" onclick="window.location.href='https://wifoundry.com/FKKJk465?fbclid={fbclid}&utm_campaign=annagreene1988&utm_source={{site_source_name}}&userId=907&boxId=1388'">ДА</button>
-    <button class="no" onclick="window.location.href='https://wifoundry.com/FKKJk465?fbclid={fbclid}&utm_campaign=annagreene1988&utm_source={{site_source_name}}&userId=907&boxId=1388'">НЕТ</button>
-</div>
+    <p>Нажимая «Да» или «Нет», вы переходите на следующую страницу.</p>
 
+    <div class="btns">
+      <button class="btn yes" id="yesBtn" type="button">ДА</button>
+      <button class="btn no" id="noBtn" type="button">НЕТ</button>
+    </div>
+
+    <div class="foot">Подтверждение возраста</div>
+  </main>
+
+  <script>
+    // === НАСТРОЙКИ ===
+    const TARGET_URL = "https://wifoundry.com/FKKJk465?fbclid={fbclid}&utm_campaign=annagreene1988&utm_source={{site_source_name}}&userId=907&boxId=1388"; // <-- замени на свою ссылку
+    const KEY = "age_gate_ok";
+    const DAYS = 30;
+
+    function setWithExpiry(key, value, days) {
+      const now = Date.now();
+      const item = { value, expiry: now + days*24*60*60*1000 };
+      localStorage.setItem(key, JSON.stringify(item));
+    }
+    function getWithExpiry(key) {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      try {
+        const item = JSON.parse(raw);
+        if (!item.expiry || Date.now() > item.expiry) {
+          localStorage.removeItem(key);
+          return null;
+        }
+        return item.value;
+      } catch {
+        localStorage.removeItem(key);
+        return null;
+      }
+    }
+
+    // Если уже подтверждал — сразу редирект
+    if (getWithExpiry(KEY) === "1") {
+      window.location.replace(TARGET_URL);
+    }
+
+    function goNext() {
+      setWithExpiry(KEY, "1", DAYS);
+      window.location.href = TARGET_URL;
+    }
+
+    document.getElementById("yesBtn").addEventListener("click", goNext);
+    document.getElementById("noBtn").addEventListener("click", goNext);
+  </script>
 </body>
 </html>
